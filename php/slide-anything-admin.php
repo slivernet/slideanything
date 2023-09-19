@@ -3326,29 +3326,41 @@ function cpt_slider_sa_preview_page_template( $template ) {
  * @param array $allowedposttags Allowed Post Tags.
  */
 function cpt_slider_allow_iframes_filter( $allowedposttags ) {
-	// Only change for users who can publish posts.
-	if ( ! current_user_can( 'publish_posts' ) ) {
-		return $allowedposttags;
-	}
+    // Only change for users who can publish posts.
+    if ( ! current_user_can( 'publish_posts' ) ) {
+        return $allowedposttags;
+    }
 
-	// Allow iframes and the following attributes.
-	$allowedposttags['iframe'] = array(
-		'align'           => true,
-		'width'           => true,
-		'height'          => true,
-		'frameborder'     => true,
-		'name'            => true,
-		'src'             => true,
-		'title'           => true,
-		'allow'           => true,
-		'allowfullscreen' => true,
-		'id'              => true,
-		'class'           => true,
-		'style'           => true,
-		'scrolling'       => true,
-		'marginwidth'     => true,
-		'marginheight'    => true,
-	);
-	return $allowedposttags;
+    // Allow iframes and the following attributes.
+    $allowedposttags['iframe'] = array(
+        'align'           => true,
+        'width'           => true,
+        'height'          => true,
+        'frameborder'     => true,
+        'name'            => true,
+        'src'             => true,
+        'title'           => true,
+        'allow'           => true,
+        'allowfullscreen' => true,
+        'id'              => true,
+        'class'           => true,
+        'style'           => true,
+        'scrolling'       => true,
+        'marginwidth'     => true,
+        'marginheight'    => true,
+    );
+
+    // Check and sanitize the src attribute
+    $trusted_domains = array('youtube.com', 'vimeo.com'); // Add other trusted domains as needed
+    if (isset($allowedposttags['iframe']['src'])) {
+        $src_value = $allowedposttags['iframe']['src'];
+        $parsed_url = parse_url($src_value);
+        if (!in_array($parsed_url['host'], $trusted_domains)) {
+            unset($allowedposttags['iframe']['src']); // Remove the src attribute if it's not from a trusted domain
+        }
+    }
+
+    return $allowedposttags;
 }
+
 ?>
